@@ -1,0 +1,141 @@
+:root {
+  /* ==========================================================================
+     WAKEFULLY APPLE-REFINED EDITORIAL DESIGN SYSTEM
+     Combining Broadsheet Architecture with Apple Human Interface Craft:
+     - Optical Typography & Tabular Numerals
+     - 8pt Spatial Rhythm & 44px Minimum Hit Ergonomics
+     - Translucent Materials (Frosted Glass Chrome)
+     - Critically Damped Spring Physics & Tactile Micro-Interactions
+     ========================================================================== */
+
+  /* Surfaces & Canvas (Matte Chalk Paper Palette with Translucent Depth) */
+  --bg-canvas: #f0f2f5;             /* Presentation shell workspace backdrop */
+  --bg-surface: #f8f9fa;            /* Warm chalk base / broadsheet surface */
+  --bg-base: #f8f9fa;
+  --bg-dim: #d9dadb;
+  --bg-bright: #f8f9fa;
+  --bg-container-lowest: #ffffff;   /* Pure paper white for cards / focal panels */
+  --bg-container-low: #f3f4f5;      /* Subtle recessed sections */
+  --bg-container: #edeeef;          /* Standard container surfaces */
+  --bg-container-high: #e7e8e9;     /* Secondary elevated plate */
+  --bg-container-highest: #e1e3e4;  /* Maximum container contrast */
+  --bg-surface-elevated: #ffffff;
+
+  /* Frosted Translucent Materials (Apple Glass Layering) */
+  --glass-bg: rgba(248, 249, 250, 0.82);
+  --glass-bg-card: rgba(255, 255, 255, 0.88);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-border: 1px solid rgba(17, 18, 21, 0.08);
+  --glass-border-light: 1px solid rgba(255, 255, 255, 0.45);
+
+  /* Subtle Layered Shadows (Elevation without clutter) */
+  --shadow-subtle: 0 1px 2px rgba(17, 18, 21, 0.04);
+  --shadow-card: 0 2px 8px rgba(17, 18, 21, 0.04), 0 1px 2px rgba(17, 18, 21, 0.02);
+  --shadow-float: 0 8px 24px rgba(17, 18, 21, 0.08), 0 2px 6px rgba(17, 18, 21, 0.04);
+
+  /* Ink & Typography Palette */
+  --text-primary: #191c1d;          /* Deep carbon ink (#111215) */
+  --text-on-surface: #191c1d;
+  --text-secondary: #46464b;        /* Muted slate graphite metadata */
+  --text-on-surface-variant: #46464b;
+  --text-muted: #76777b;
+  --text-outline: #76777b;
+  --text-outline-variant: #c7c6cb;
+  --text-inverse: #ffffff;
+
+  /* Structural Accents */
+  --color-primary: #000000;         /* Grounding carbon ink */
+  --color-on-primary: #ffffff;
+  --color-secondary: #a23e18;       /* Single-origin warm burnt ember / terracotta */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fe8357;
+  --color-on-secondary-container: #6f2000;
+  --color-secondary-fixed: #ffdbcf; /* Warm terracotta highlight plate */
+  --color-on-secondary-fixed: #390c00;
+  --color-secondary-fixed-dim: #ffb59c;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+
+  /* Aliases for compatibility */
+  --accent-terracotta: #a23e18;
+  --accent-burnt-ember: #c85a32;
+  --accent-coral: #fe8357;
+  --accent-amber: #a23e18;
+  --accent-primary: #000000;
+
+  /* Hairline Structural Rules (Apple crisp hairline: 0.5px to 1px) */
+  --border-hairline: 1px solid rgba(17, 18, 21, 0.10);
+  --border-hairline-subtle: 0.5px solid rgba(17, 18, 21, 0.07);
+  --border-hairline-high: 1px solid rgba(17, 18, 21, 0.18);
+  --border-hairline-black: 1px solid #111215;
+
+  /* Apple Squircle Geometry & Concentric Radii */
+  --radius-none: 0px;
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-card: 20px;
+  --radius-card-inner: 12px;
+  --radius-button: 14px;
+  --radius-pill: 9999px;
+  --radius-sheet: 28px;
+  --radius-full: 9999px;
+
+  /* Android Presentation Phone Chassis */
+  --phone-width: 390px;
+  --phone-height: 844px;
+  --phone-radius: 44px;
+
+  /* Typography Stacks */
+  --font-serif: 'Newsreader', -apple-system-ui-serif, Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Hanken Grotesk', 'Segoe UI', Roboto, sans-serif;
+  --font-telemetry: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Apple Optical Tracking Tokens */
+  --tracking-display: -0.03em;
+  --tracking-title: -0.018em;
+  --tracking-body: -0.005em;
+  --tracking-caps: 0.08em;
+  --tracking-mono: 0.04em;
+
+  /* Apple Leading (Line Height) Tokens */
+  --leading-display: 1.05;
+  --leading-title: 1.2;
+  --leading-body: 1.48;
+  --leading-tight: 1.15;
+
+  /* Spacing Grid (8pt System with 4pt half-step) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --margin: 16px;
+
+  /* Touch Ergonomics (Apple 44pt minimum touch target) */
+  --touch-target-min: 44px;
+
+  /* Motion Tokens (Transitions Polish & Apple Springs)
+     Apple Damping 1.0 (critically damped, zero bounce, smooth deceleration) */
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;
+  --duration-fast: 240ms;
+  --duration-medium: 320ms;
+  --duration-slow: 400ms;
+
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);  /* Apple WWDC fluid deceleration */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-press: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Tactile Press Scale (make-interfaces-feel-better core rule: 0.96) */
+  --scale-press: 0.96;
+  --scale-press-subtle: 0.98;
+
+  /* Legacy Compatibility Aliases */
+  --transition-fast: var(--duration-quick) var(--ease-smooth-out);
+  --transition-normal: var(--duration-fast) var(--ease-smooth-out);
+}

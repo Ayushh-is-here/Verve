@@ -1,0 +1,607 @@
+/* ==========================================================================
+   WAKEFULLY APPLE-REFINED EDITORIAL SCREEN STYLES
+   Source: stitch_wakefully_mission_alarm_app
+   Crafted with Apple squircle geometry & concentric radii (no boxiness)
+   ========================================================================== */
+
+.app-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-surface);
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 24px;
+  scrollbar-width: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-screen::-webkit-scrollbar {
+  display: none;
+}
+
+.app-screen.active {
+  display: flex !important;
+}
+
+.screen-has-bottom-nav {
+  padding-bottom: 74px !important;
+}
+
+/* Screen Top Header Bar (Apple Frosted Glass Chrome) */
+.screen-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  position: sticky;
+  top: 0;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: var(--glass-border);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  z-index: 15;
+}
+
+.screen-header-title {
+  font-family: var(--font-telemetry);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   SCREEN 1: ONBOARDING INTRO
+   ========================================================================== */
+.onboarding-screen {
+  justify-content: space-between;
+  padding: 16px 20px 24px 20px;
+  background-color: var(--bg-surface);
+}
+
+.onboarding-top {
+  display: flex;
+  justify-content: flex-end;
+  height: 36px;
+}
+
+.onboarding-slides-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.onboarding-slide {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.onboarding-slide.active {
+  display: flex;
+  animation: appleContentReveal var(--duration-fast) var(--ease-smooth-out) both;
+}
+
+.slide-graphic-box {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border-radius: var(--radius-card);
+  background-color: var(--bg-container-low);
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-subtle);
+}
+
+.slide-title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
+  text-wrap: balance;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.slide-desc {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  text-wrap: pretty;
+  color: var(--text-secondary);
+  max-width: 290px;
+}
+
+.onboarding-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.onboarding-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.onboard-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--bg-container-highest);
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  transition: width var(--duration-fast) var(--ease-smooth-out),
+              background-color var(--duration-fast) var(--ease-smooth-out);
+  position: relative;
+}
+
+.onboard-dot::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -10px;
+  right: -10px;
+}
+
+.onboard-dot.active {
+  width: 22px;
+  background-color: var(--color-secondary);
+}
+
+/* ==========================================================================
+   SCREEN 2: PERMISSIONS CHECKLIST
+   ========================================================================== */
+.permissions-screen {
+  padding: 18px;
+}
+
+.perm-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  background-color: var(--bg-container-lowest);
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-subtle);
+  margin-bottom: 10px;
+  transition: background-color var(--duration-quick) var(--ease-smooth-out),
+              box-shadow var(--duration-quick) var(--ease-smooth-out);
+}
+
+.perm-row:hover {
+  background-color: #ffffff;
+  box-shadow: 0 4px 14px rgba(17, 18, 21, 0.05);
+}
+
+.perm-checkbox {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #FFFFFF;
+  position: relative;
+  transition: background-color var(--duration-quick) var(--ease-smooth-out),
+              border-color var(--duration-quick) var(--ease-smooth-out),
+              transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+.perm-checkbox::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  bottom: -11px;
+  left: -11px;
+  right: -11px;
+}
+
+.perm-checkbox:active {
+  transform: scale(var(--scale-press));
+}
+
+.perm-checkbox.checked {
+  background-color: var(--color-primary);
+}
+
+.perm-checkbox.checked::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background-color: #FFFFFF;
+}
+
+/* ==========================================================================
+   SCREEN 3: HOME / CADENCE REGISTERS (Apple Card Architecture)
+   ========================================================================== */
+.home-screen {
+  padding: 0;
+}
+
+.home-header {
+  height: 56px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: var(--glass-border);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Floating Horizon Banner Widget */
+.target-cadence-banner {
+  background-color: var(--bg-container-low);
+  padding: 16px 18px;
+  border-radius: var(--radius-card);
+  margin: 12px 18px 8px 18px;
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-subtle);
+}
+
+.target-cadence-banner .font-serif {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-display);
+}
+
+.editorial-section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 18px 8px 18px;
+}
+
+.alarm-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px;
+}
+
+.alarm-article {
+  background-color: var(--bg-container-lowest);
+  border: var(--border-hairline-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  transition: transform var(--duration-quick) var(--ease-smooth-out),
+              box-shadow var(--duration-quick) var(--ease-smooth-out),
+              background-color var(--duration-quick) var(--ease-smooth-out);
+}
+
+.alarm-article:hover {
+  background-color: #ffffff;
+  box-shadow: 0 6px 20px rgba(17, 18, 21, 0.06);
+}
+
+.alarm-article:active {
+  transform: scale(var(--scale-press-subtle));
+}
+
+.alarm-article.inactive {
+  opacity: 0.6;
+  background-color: var(--bg-container-low);
+  box-shadow: none;
+}
+
+.alarm-article .font-serif {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-display);
+}
+
+/* ==========================================================================
+   SCREEN 4: CREATE / EDIT CADENCE
+   ========================================================================== */
+.create-alarm-screen {
+  padding: 0;
+}
+
+.cadence-dial-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 18px 18px 18px;
+  background-color: var(--bg-container-low);
+  border-radius: var(--radius-card);
+  margin: 12px 18px 8px 18px;
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-subtle);
+}
+
+.cadence-time-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-serif);
+  font-size: 76px;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+  user-select: none;
+}
+
+/* Sliders Styling (Apple Touch Sliders) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--bg-container-highest);
+  outline: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+
+.day-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.day-btn {
+  height: var(--touch-target-min);
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-telemetry);
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--bg-container-high);
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--duration-quick) var(--ease-smooth-out),
+              color var(--duration-quick) var(--ease-smooth-out),
+              transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+.day-btn:active {
+  transform: scale(var(--scale-press)) !important;
+}
+
+.day-btn.active {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-subtle);
+}
+
+.day-btn.active::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--color-secondary-container);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   SCREEN 7: ALARM RINGING
+   ========================================================================== */
+.ringing-screen {
+  padding: 0;
+  background-color: var(--bg-surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.ringing-telemetry-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background-color: var(--bg-container-highest);
+  border-bottom: var(--border-hairline-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.chrono-monolith {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--font-serif);
+  font-size: 84px;
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  padding: 16px 18px 8px 18px;
+}
+
+.soundwave-visualizer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 40px;
+  width: 100%;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.soundwave-bar {
+  flex: 1;
+  border-radius: 4px;
+  background-color: var(--text-primary);
+  transition: height 0.14s var(--ease-smooth-out);
+}
+
+.soundwave-bar.accent {
+  background-color: var(--color-secondary);
+}
+
+/* ==========================================================================
+   SCREEN 8: BARCODE MISSION VERIFICATION
+   ========================================================================== */
+.barcode-mission-screen {
+  padding: 0;
+}
+
+.camera-viewfinder-lens {
+  position: relative;
+  width: calc(100% - 36px);
+  margin: 12px 18px;
+  border-radius: var(--radius-card);
+  aspect-ratio: 4/5;
+  background-color: var(--bg-container-highest);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.viewfinder-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--color-primary);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; border-top-left-radius: 8px; }
+.corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; border-top-right-radius: 8px; }
+.corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px; }
+.corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px; }
+
+.laser-scan-line {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: var(--color-secondary-container);
+  box-shadow: 0 0 8px rgba(254, 131, 87, 0.6);
+  z-index: 20;
+  animation: laserScanMove 2.2s linear infinite alternate;
+}
+
+.barcode-target-ticket {
+  width: 210px;
+  height: 120px;
+  background-color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: var(--border-hairline-subtle);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   SCREENS 5, 6, 9, 10, 11, 12, 13 (Apple Squircle Language)
+   ========================================================================== */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 290px;
+  margin: 0 auto;
+}
+
+.keypad-btn {
+  height: 56px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-container-lowest);
+  border: var(--border-hairline-subtle);
+  box-shadow: var(--shadow-subtle);
+  font-family: var(--font-telemetry);
+  font-variant-numeric: tabular-nums;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform var(--duration-quick) var(--ease-smooth-out),
+              background-color var(--duration-quick) var(--ease-smooth-out),
+              box-shadow var(--duration-quick) var(--ease-smooth-out);
+}
+
+.keypad-btn:active {
+  transform: scale(var(--scale-press)) !important;
+  background-color: var(--bg-container-high) !important;
+}
+
+/* Modal dialog background blur overlay */
+#battery-guide-modal {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#battery-guide-modal .card {
+  border-radius: var(--radius-sheet);
+  box-shadow: var(--shadow-float);
+}

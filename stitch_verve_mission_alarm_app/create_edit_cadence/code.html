@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..800;1,300..800&amp;family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#f8f9fa;color:#191c1d;}body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-fixed":"#181c22","tertiary-container":"#181c22","surface":"#f8f9fa","surface-bright":"#f8f9fa","surface-container-lowest":"#ffffff","on-primary":"#ffffff","on-surface-variant":"#46464b","on-tertiary-fixed-variant":"#43474e","on-background":"#191c1d","outline":"#76777b","inverse-primary":"#c7c6ca","primary-fixed":"#e3e2e6","secondary-container":"#fe8357","tertiary-fixed-dim":"#c4c6cf","surface-dim":"#d9dadb","secondary-fixed":"#ffdbcf","primary-container":"#1b1b1f","secondary-fixed-dim":"#ffb59c","surface-container":"#edeeef","on-surface":"#191c1d","tertiary":"#000000","secondary":"#a23e18","inverse-surface":"#2e3132","on-secondary":"#ffffff","primary":"#000000","tertiary-fixed":"#e0e2eb","primary-fixed-dim":"#c7c6ca","error-container":"#ffdad6","on-tertiary-container":"#81848c","surface-tint":"#5e5e62","on-primary-container":"#848387","on-secondary-fixed-variant":"#822801","on-primary-fixed":"#1b1b1f","on-primary-fixed-variant":"#46464a","on-error":"#ffffff","outline-variant":"#c7c6cb","on-tertiary":"#ffffff","surface-container-high":"#e7e8e9","surface-container-highest":"#e1e3e4","error":"#ba1a1a","on-secondary-fixed":"#390c00","surface-variant":"#e1e3e4","on-error-container":"#93000a","on-secondary-container":"#6f2000","inverse-on-surface":"#f0f1f2","surface-container-low":"#f3f4f5","background":"#f8f9fa"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-sm":"0.5rem","space-lg":"1.5rem",gutter:"1.5rem",margin:"1.25rem","space-xs":"0.25rem","space-md":"1rem","gutter-desktop":"2.5rem","margin-desktop":"4rem","space-xl":"3rem"},fontFamily:{"headline-xl-mobile":["Newsreader"],"label-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"body-sm":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-md":["Newsreader"],"headline-lg-mobile":["Newsreader"],"headline-sm":["Hanken Grotesk"],"headline-lg":["Newsreader"],"headline-xl":["Newsreader"],"body-md":["Hanken Grotesk"]},fontSize:{"headline-xl-mobile":["36px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"400"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.04em",fontWeight:"500"}],"label-sm":["10px",{lineHeight:"14px",letterSpacing:"0.06em",fontWeight:"500"}],"body-sm":["13px",{lineHeight:"18px",letterSpacing:"0.005em",fontWeight:"400"}],"body-lg":["17px",{lineHeight:"26px",letterSpacing:"-0.005em",fontWeight:"400"}],"headline-md":["28px",{lineHeight:"34px",letterSpacing:"-0.01em",fontWeight:"400"}],"headline-lg-mobile":["28px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"400"}],"headline-sm":["20px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-lg":["40px",{lineHeight:"44px",letterSpacing:"-0.02em",fontWeight:"400"}],"headline-xl":["56px",{lineHeight:"60px",letterSpacing:"-0.025em",fontWeight:"400"}],"body-md":["15px",{lineHeight:"22px",letterSpacing:"0em",fontWeight:"400"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-md pt-safe border-b border-black/10"><div class="flex items-center justify-between h-14 px-margin"><button aria-label="Cancel and go back" class="min-h-[44px] min-w-[44px] -ml-2 inline-flex items-center justify-start text-on-surface hover:text-primary active:opacity-70 transition-opacity" onclick="history.back()"><span class="font-label-md text-label-md uppercase tracking-wider">[CANCEL]</span></button><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md uppercase tracking-wider text-on-surface font-semibold">Create / Edit Alarm</span></div><button aria-label="Save settings" class="min-h-[44px] min-w-[44px] -mr-2 inline-flex items-center justify-end text-secondary hover:text-primary active:opacity-70 transition-opacity"><span class="font-label-md text-label-md uppercase tracking-wider font-semibold">SAVE</span></button></div></header><main class="flex flex-col relative w-full pt-14 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full pb-12 bg-surface text-on-surface">
+<!-- Minimal Sub-Header Strip -->
+<div class="w-full px-margin py-space-sm flex items-center justify-between bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Protocol Ref: #WAKE-8842-CAD</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block animate-pulse"></span>
+      State: Uncommitted
+    </span>
+</div>
+<!-- Primary Time Dial Section -->
+<section class="w-full px-margin pt-space-lg pb-space-md flex flex-col items-center justify-center bg-surface">
+<div class="w-full flex items-center justify-between text-on-surface-variant mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Target Awaken Timestamp</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Local Sync: CET (UTC+1)</span>
+</div>
+<!-- Scaled Editorial Time Readout -->
+<div class="w-full py-4 flex items-baseline justify-center gap-2 select-none">
+<div class="flex items-baseline space-x-1 font-headline-xl text-[74px] leading-none tracking-tight text-primary">
+<span class="cursor-pointer hover:opacity-75 transition-opacity" id="display-hours">06</span>
+<span class="text-secondary opacity-80 animate-pulse">:</span>
+<span class="cursor-pointer hover:opacity-75 transition-opacity" id="display-mins">30</span>
+</div>
+<div class="flex flex-col justify-end ml-2 pb-1 gap-1">
+<button class="font-label-md text-label-md px-1.5 py-0.5 bg-primary text-on-primary transition-all" id="toggle-am">AM</button>
+<button class="font-label-md text-label-md px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant hover:text-primary transition-all" id="toggle-pm">PM</button>
+</div>
+</div>
+<!-- Micro Dial Scrubbers -->
+<div class="w-full grid grid-cols-2 gap-space-md pt-space-sm pb-space-sm max-w-sm">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase">Hour Wheel</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary" id="val-hour">06 H</span>
+</div>
+<input class="w-full accent-primary h-1 bg-surface-container-highest cursor-pointer appearance-none rounded-none" id="slider-hours" max="12" min="1" type="range" value="6"/>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-label-sm text-label-sm uppercase">Minute Index</span>
+<span class="font-label-sm text-label-sm font-semibold text-primary" id="val-min">30 M</span>
+</div>
+<input class="w-full accent-primary h-1 bg-surface-container-highest cursor-pointer appearance-none rounded-none" id="slider-mins" max="59" min="0" type="range" value="30"/>
+</div>
+</div>
+</section>
+<!-- Recurrence & Label Block -->
+<section class="w-full px-margin py-space-md bg-surface-container-low flex flex-col gap-space-md">
+<!-- Day Matrix -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Cadence Frequency</span>
+<span class="font-label-sm text-label-sm uppercase text-secondary">5 Days Active</span>
+</div>
+<div class="grid grid-cols-7 gap-1.5 pt-1" id="day-selector">
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-primary text-on-primary transition-colors" data-day="M">
+<span>M</span>
+<span class="w-1 h-1 bg-secondary-container mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-primary text-on-primary transition-colors" data-day="T">
+<span>T</span>
+<span class="w-1 h-1 bg-secondary-container mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-primary text-on-primary transition-colors" data-day="W">
+<span>W</span>
+<span class="w-1 h-1 bg-secondary-container mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-primary text-on-primary transition-colors" data-day="T">
+<span>T</span>
+<span class="w-1 h-1 bg-secondary-container mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-primary text-on-primary transition-colors" data-day="F">
+<span>F</span>
+<span class="w-1 h-1 bg-secondary-container mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" data-day="S">
+<span>S</span>
+<span class="w-1 h-1 bg-transparent mt-0.5"></span>
+</button>
+<button class="day-btn h-11 flex flex-col items-center justify-center font-label-md text-label-md bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" data-day="S">
+<span>S</span>
+<span class="w-1 h-1 bg-transparent mt-0.5"></span>
+</button>
+</div>
+</div>
+<!-- Inline Label Row -->
+<div class="flex flex-col gap-1 pt-1">
+<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" for="cadence-title">Cadence Identifier</label>
+<div class="flex items-center justify-between bg-surface-container px-space-md py-2.5">
+<input class="bg-transparent font-body-md text-body-md text-primary font-medium focus:outline-none w-full tracking-tight" id="cadence-title" type="text" value="Morning Focus &amp; Run"/>
+<span class="material-symbols-outlined text-outline text-lg">edit</span>
+</div>
+</div>
+</section>
+<!-- Section 02: Dismissal Mission -->
+<section class="w-full px-margin pt-space-lg pb-space-md bg-surface flex flex-col">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">02 //</span>
+<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">DISMISSAL MISSION (HARD LOCK)</h2>
+</div>
+<span class="font-label-sm text-label-sm uppercase px-1.5 py-0.5 bg-primary text-on-primary">MANDATORY</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pb-space-md leading-relaxed">
+      Auditory alarm loops infinitely until verified physical scan is executed. No emergency snooze overrides permitted once cycle initiates.
+    </p>
+<!-- Target Detail Table -->
+<div class="w-full bg-surface-container-lowest p-space-md flex flex-col gap-3 shadow-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">barcode_scanner</span>
+</div>
+<div>
+<div class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Assigned Task</div>
+<div class="font-body-md text-body-md text-primary font-semibold">Physical Barcode Scan</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed uppercase font-medium">
+          [LOCKED C-09]
+        </span>
+</div>
+<div class="h-px w-full bg-surface-container-highest"></div>
+<div class="grid grid-cols-2 gap-2 text-left">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Registered Item</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Ensuite Colgate Tube</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Hardware Location</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Master Bath (34m Away)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="font-label-md text-label-md text-secondary hover:text-primary transition-colors flex items-center gap-1 uppercase tracking-wider py-1" id="btn-change-mission">
+<span>Change Mission Protocol</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline">HASH: 44A9F2</span>
+</div>
+</div>
+<!-- Mission Options Strip (Collapsible visual tabs) -->
+<div class="grid grid-cols-3 gap-1 pt-2">
+<div class="bg-primary text-on-primary p-2 text-center flex flex-col items-center">
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">01 Barcode</span>
+<span class="text-[10px] text-surface-tint mt-0.5">Physical Sync</span>
+</div>
+<div class="bg-surface-container-high text-on-surface-variant p-2 text-center flex flex-col items-center opacity-70">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">02 Mental Math</span>
+<span class="text-[10px] text-outline mt-0.5">Complex Calculus</span>
+</div>
+<div class="bg-surface-container-high text-on-surface-variant p-2 text-center flex flex-col items-center opacity-70">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">03 Shake Test</span>
+<span class="text-[10px] text-outline mt-0.5">60 Dynamic Steps</span>
+</div>
+</div>
+<!-- Tactile Toggle Row: Strict Mode -->
+<div class="mt-space-md p-space-md bg-surface-container-low flex items-center justify-between">
+<div class="flex flex-col pr-4">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-primary font-semibold uppercase">Strict Mode Intensity</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant pt-0.5">Disables task evasion; forces maximum camera brightness during scan.</span>
+</div>
+<!-- Tactile Rocker Switch -->
+<button aria-checked="true" class="relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full bg-primary-container p-0.5 transition-colors duration-200 ease-in-out" id="toggle-strict" role="switch">
+<span class="pointer-events-none inline-block h-6 w-6 transform translate-x-6 rounded-full bg-secondary shadow-md transition duration-200 ease-in-out flex items-center justify-center" id="toggle-strict-thumb">
+<span class="w-1.5 h-1.5 bg-on-secondary rounded-full"></span>
+</span>
+</button>
+</div>
+</section>
+<!-- Section 03: Acoustic Dynamics -->
+<section class="w-full px-margin pt-space-lg pb-space-md bg-surface-container-low flex flex-col">
+<div class="flex items-baseline gap-2 pb-space-sm">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">03 //</span>
+<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">ACOUSTIC DYNAMICS &amp; WAKE ARCHITECTURE</h2>
+</div>
+<!-- Audio Preset Tile -->
+<div class="w-full bg-surface p-space-md flex flex-col gap-space-sm shadow-sm mb-space-sm">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Sound Signature</span>
+<h3 class="font-body-lg text-body-lg text-primary font-semibold">Nordic Dawn (Circadian 432Hz)</h3>
+</div>
+<button class="p-2 bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all" id="btn-preview-audio">
+<span class="material-symbols-outlined text-base" id="icon-preview">play_arrow</span>
+</button>
+</div>
+<!-- Volume Readout with dB Sparkline -->
+<div class="flex flex-col gap-1 pt-2">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Peak Pressure Target</span>
+<span class="font-label-md text-label-md font-bold text-secondary" id="db-readout">84 dB [MAX]</span>
+</div>
+<input class="w-full accent-secondary h-1.5 bg-surface-container cursor-pointer appearance-none" id="volume-slider" max="95" min="40" type="range" value="84"/>
+<div class="flex justify-between text-[10px] font-label-sm text-outline mt-0.5">
+<span>40 dB (Whisper)</span>
+<span>65 dB (Ambient)</span>
+<span>95 dB (Alert)</span>
+</div>
+</div>
+</div>
+<!-- Acoustic Ramp Module -->
+<div class="w-full bg-surface p-space-md flex flex-col gap-2 mb-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Logarithmic Sunrise Ramp</span>
+<span class="font-label-sm text-label-sm uppercase text-primary font-semibold">15 MIN INTERVAL</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Harmonics scale non-linearly from 0 dB to peak amplitude over 900 seconds, bypassing acute cortisol spikes.
+      </p>
+<!-- Visualized Curve SVG -->
+<div class="w-full h-12 bg-surface-container-lowest flex items-end px-2 pt-2 pb-1 overflow-hidden">
+<svg class="w-full h-8 text-secondary" fill="none" preserveaspectratio="none" viewbox="0 0 200 40">
+<path d="M0,38 C80,38 140,25 200,2" stroke="currentColor" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+<path d="M0,38 C80,38 140,25 200,2 L200,40 L0,40 Z" fill="currentColor" opacity="0.1"></path>
+</svg>
+</div>
+</div>
+<!-- Snooze Policy Choice -->
+<div class="w-full bg-surface p-space-md flex flex-col gap-space-xs shadow-sm">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Snooze Protocol Directive</span>
+<div class="flex flex-col gap-2 pt-1">
+<label class="flex items-center justify-between p-2.5 bg-surface-container-high cursor-pointer select-none">
+<div class="flex items-center gap-2.5">
+<input checked="" class="accent-primary w-4 h-4" name="snooze-opt" type="radio" value="forfeit"/>
+<span class="font-body-sm text-body-sm text-primary font-semibold">Strict Forfeit (0 Snoozes Allowed)</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-secondary font-medium">Recommended</span>
+</label>
+<label class="flex items-center justify-between p-2.5 bg-surface-container cursor-pointer select-none opacity-80">
+<div class="flex items-center gap-2.5">
+<input class="accent-primary w-4 h-4" name="snooze-opt" type="radio" value="micro"/>
+<span class="font-body-sm text-body-sm text-primary">Micro-Snooze (+3m with Math Tax)</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">+3m</span>
+</label>
+</div>
+</div>
+</section>
+<!-- Section 04: Emergency Hardware Interlock -->
+<section class="w-full px-margin pt-space-lg pb-space-lg bg-surface flex flex-col">
+<div class="flex items-baseline gap-2 pb-space-sm">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">04 //</span>
+<h2 class="font-headline-sm text-headline-sm text-primary tracking-tight">HARDWARE INTERLOCK</h2>
+</div>
+<div class="p-space-md bg-surface-container-highest flex items-center justify-between shadow-sm">
+<div class="flex flex-col pr-3">
+<span class="font-label-md text-label-md text-primary font-bold uppercase">Prevent Device Power-Off</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant pt-0.5">
+          Restricts hardware shutdown sequence and volume attenuation 45 minutes prior to alarm event.
+        </span>
+</div>
+<button aria-checked="true" class="relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full bg-primary p-0.5 transition-colors" id="toggle-interlock" role="switch">
+<span class="pointer-events-none inline-block h-6 w-6 transform translate-x-6 rounded-full bg-secondary shadow-md transition duration-200 ease-in-out flex items-center justify-center" id="toggle-interlock-thumb">
+<span class="w-1.5 h-1.5 bg-on-secondary rounded-full"></span>
+</span>
+</button>
+</div>
+<!-- Final Operational Metadata -->
+<div class="pt-space-lg flex flex-col items-center justify-center gap-1 text-center text-outline">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Device OS Integration: Level 04 Protected</span>
+<span class="font-label-sm text-label-sm">Wakefully Autonomous Cadence Engine • Build v4.9.12</span>
+</div>
+</section>
+</div>
+<script>
+  // Interactive micro-dial handling
+  const hourSlider = document.getElementById('slider-hours');
+  const minSlider = document.getElementById('slider-mins');
+  const displayHours = document.getElementById('display-hours');
+  const displayMins = document.getElementById('display-mins');
+  const valHour = document.getElementById('val-hour');
+  const valMin = document.getElementById('val-min');
+
+  if (hourSlider && minSlider) {
+    hourSlider.addEventListener('input', (e) => {
+      const formatted = String(e.target.value).padStart(2, '0');
+      displayHours.textContent = formatted;
+      valHour.textContent = formatted + ' H';
+    });
+
+    minSlider.addEventListener('input', (e) => {
+      const formatted = String(e.target.value).padStart(2, '0');
+      displayMins.textContent = formatted;
+      valMin.textContent = formatted + ' M';
+    });
+  }
+
+  // AM / PM Toggle
+  const btnAm = document.getElementById('toggle-am');
+  const btnPm = document.getElementById('toggle-pm');
+  if (btnAm && btnPm) {
+    btnAm.addEventListener('click', () => {
+      btnAm.className = 'font-label-md text-label-md px-1.5 py-0.5 bg-primary text-on-primary transition-all';
+      btnPm.className = 'font-label-md text-label-md px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant hover:text-primary transition-all';
+    });
+    btnPm.addEventListener('click', () => {
+      btnPm.className = 'font-label-md text-label-md px-1.5 py-0.5 bg-primary text-on-primary transition-all';
+      btnAm.className = 'font-label-md text-label-md px-1.5 py-0.5 bg-surface-container-high text-on-surface-variant hover:text-primary transition-all';
+    });
+  }
+
+  // Day Selector Toggles
+  const dayButtons = document.querySelectorAll('.day-btn');
+  dayButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const dot = btn.querySelector('span:last-child');
+      const isActive = btn.classList.contains('bg-primary');
+      if (isActive) {
+        btn.classList.remove('bg-primary', 'text-on-primary');
+        btn.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+        if (dot) dot.classList.replace('bg-secondary-container', 'bg-transparent');
+      } else {
+        btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+        btn.classList.add('bg-primary', 'text-on-primary');
+        if (dot) dot.classList.replace('bg-transparent', 'bg-secondary-container');
+      }
+    });
+  });
+
+  // Strict Mode Rocker Switch
+  const toggleStrict = document.getElementById('toggle-strict');
+  const thumbStrict = document.getElementById('toggle-strict-thumb');
+  let strictState = true;
+  if (toggleStrict && thumbStrict) {
+    toggleStrict.addEventListener('click', () => {
+      strictState = !strictState;
+      toggleStrict.setAttribute('aria-checked', String(strictState));
+      if (strictState) {
+        thumbStrict.classList.remove('translate-x-0', 'bg-outline');
+        thumbStrict.classList.add('translate-x-6', 'bg-secondary');
+        toggleStrict.classList.replace('bg-surface-container-highest', 'bg-primary-container');
+      } else {
+        thumbStrict.classList.remove('translate-x-6', 'bg-secondary');
+        thumbStrict.classList.add('translate-x-0', 'bg-outline');
+        toggleStrict.classList.replace('bg-primary-container', 'bg-surface-container-highest');
+      }
+    });
+  }
+
+  // Interlock Rocker Switch
+  const toggleInterlock = document.getElementById('toggle-interlock');
+  const thumbInterlock = document.getElementById('toggle-interlock-thumb');
+  let interlockState = true;
+  if (toggleInterlock && thumbInterlock) {
+    toggleInterlock.addEventListener('click', () => {
+      interlockState = !interlockState;
+      toggleInterlock.setAttribute('aria-checked', String(interlockState));
+      if (interlockState) {
+        thumbInterlock.classList.remove('translate-x-0', 'bg-outline');
+        thumbInterlock.classList.add('translate-x-6', 'bg-secondary');
+        toggleInterlock.classList.replace('bg-surface-container-high', 'bg-primary');
+      } else {
+        thumbInterlock.classList.remove('translate-x-6', 'bg-secondary');
+        thumbInterlock.classList.add('translate-x-0', 'bg-outline');
+        toggleInterlock.classList.replace('bg-primary', 'bg-surface-container-high');
+      }
+    });
+  }
+
+  // Volume dB Dynamics Slider
+  const volSlider = document.getElementById('volume-slider');
+  const dbReadout = document.getElementById('db-readout');
+  if (volSlider && dbReadout) {
+    volSlider.addEventListener('input', (e) => {
+      const val = e.target.value;
+      const tag = val > 80 ? ' [MAX]' : val < 55 ? ' [LOW]' : ' [MED]';
+      dbReadout.textContent = val + ' dB' + tag;
+    });
+  }
+
+  // Audio Preview Micro-interaction
+  const btnPreview = document.getElementById('btn-preview-audio');
+  const iconPreview = document.getElementById('icon-preview');
+  let isPlaying = false;
+  if (btnPreview && iconPreview) {
+    btnPreview.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      iconPreview.textContent = isPlaying ? 'pause' : 'play_arrow';
+    });
+  }
+</script></main></body></html>

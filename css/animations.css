@@ -1,0 +1,331 @@
+/* ==========================================================================
+   WAKEFULLY APPLE-REFINED MOTION & ANIMATION SYSTEM
+   Following Apple WWDC Fluid Interfaces + transitions.dev / transitions-polish:
+   - Critically damped deceleration curves (damping: 1.0, zero tacky bounce)
+   - 40ms stagger choreography
+   - Instant touch-down tactile response (0.96 scale-on-press)
+   - GPU-composited transforms & opacities only (60fps guaranteed)
+   - Comprehensive prefers-reduced-motion accessibility
+   ========================================================================== */
+
+/* --- 1. Screen Enter & Exit Transitions --- */
+@keyframes appleScreenEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes appleScreenExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.app-screen.active {
+  animation: appleScreenEnter var(--duration-fast) var(--ease-smooth-out) both;
+  will-change: transform, opacity;
+}
+
+/* --- 2. Staggered Content Entrance Choreography --- */
+@keyframes appleContentReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger utility classes for cards, sections, and list items */
+.stagger-item {
+  animation: appleContentReveal var(--duration-fast) var(--ease-smooth-out) backwards;
+  will-change: transform, opacity;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 40ms; }
+.stagger-item:nth-child(3) { animation-delay: 80ms; }
+.stagger-item:nth-child(4) { animation-delay: 120ms; }
+.stagger-item:nth-child(5) { animation-delay: 160ms; }
+.stagger-item:nth-child(6) { animation-delay: 200ms; }
+.stagger-item:nth-child(7) { animation-delay: 240ms; }
+.stagger-item:nth-child(8) { animation-delay: 280ms; }
+
+/* --- 3. Tactile Feedback on Press (Apple Direct Manipulation & Scale) --- */
+/* Core rule: scale(0.96) on pointer-down with instant transition */
+.press-tactile,
+.btn,
+.alarm-card,
+.mission-card,
+.keypad-btn,
+.day-btn,
+.chip-btn,
+.screen-nav-item,
+.view-btn,
+.sound-toggle-btn {
+  transition: transform var(--duration-quick) var(--ease-smooth-out),
+              background-color var(--duration-quick) var(--ease-smooth-out),
+              border-color var(--duration-quick) var(--ease-smooth-out),
+              box-shadow var(--duration-quick) var(--ease-smooth-out),
+              opacity var(--duration-quick) var(--ease-smooth-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active,
+.keypad-btn:active,
+.day-btn:active,
+.chip-btn:active {
+  transform: scale(var(--scale-press)) !important;
+  transition: transform 70ms var(--ease-press) !important;
+}
+
+.alarm-card:active,
+.mission-card:active {
+  transform: scale(var(--scale-press-subtle));
+  transition: transform 80ms var(--ease-press);
+}
+
+/* --- 4. Mechanical Tactile Switch (Apple Spring Feel) --- */
+.alarm-switch {
+  transition: background-color var(--duration-fast) var(--ease-smooth-out),
+              box-shadow var(--duration-fast) var(--ease-smooth-out);
+}
+
+.alarm-switch .switch-core {
+  transition: transform var(--duration-fast) var(--ease-smooth-out),
+              background-color var(--duration-fast) var(--ease-smooth-out),
+              width var(--duration-quick) var(--ease-smooth-out);
+  will-change: transform;
+}
+
+.alarm-switch:active .switch-core {
+  width: 22px; /* Subtle physical elongation while thumb holds switch */
+}
+
+/* --- 5. Ringing Screen Ambient Breathing Aura --- */
+@keyframes sunriseBreathingAura {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(0.98);
+    opacity: 0.45;
+  }
+}
+
+.anim-ringing-glow {
+  animation: sunriseBreathingAura 3.2s var(--ease-in-out) infinite;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.ringing-aura-bg {
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  margin-left: -140px;
+  width: 280px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(254, 131, 87, 0.30) 0%, rgba(162, 62, 24, 0.12) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(28px);
+}
+
+/* Bell Pulse for Ringing Alarm & Math Mission */
+@keyframes bellPulseGentle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  15% {
+    transform: scale(1.08) rotate(-8deg);
+  }
+  30% {
+    transform: scale(1.08) rotate(8deg);
+  }
+  45% {
+    transform: scale(1.04) rotate(-4deg);
+  }
+  60% {
+    transform: scale(1.04) rotate(4deg);
+  }
+  75% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.anim-bell-pulse {
+  animation: bellPulseGentle 1.8s var(--ease-smooth-out) infinite;
+  transform-origin: top center;
+  will-change: transform;
+}
+
+/* --- 6. Barcode Laser Scan Movement --- */
+@keyframes laserScanMove {
+  0% {
+    top: 18%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 82%;
+    opacity: 1;
+  }
+  100% {
+    top: 18%;
+    opacity: 0.85;
+  }
+}
+
+.anim-scan-line {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--color-secondary-container) 15%,
+    var(--color-secondary) 50%,
+    var(--color-secondary-container) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 8px rgba(254, 131, 87, 0.6);
+  animation: laserScanMove 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: top;
+}
+
+/* --- 7. Apple-Calibrated Haptic Error Shake --- */
+@keyframes appleErrorShake {
+  0%, 100% { transform: translateX(0); }
+  18% { transform: translateX(-7px); }
+  36% { transform: translateX(6px); }
+  54% { transform: translateX(-4px); }
+  72% { transform: translateX(3px); }
+  90% { transform: translateX(-1px); }
+}
+
+.anim-error-shake {
+  animation: appleErrorShake 0.42s var(--ease-smooth-out) both;
+  will-change: transform;
+}
+
+/* --- 8. Accelerometer Wobble for Shake Mission --- */
+@keyframes phoneNaturalWobble {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-10deg) translateX(-4px) translateY(-2px);
+  }
+  50% {
+    transform: rotate(0deg) translateY(0);
+  }
+  75% {
+    transform: rotate(10deg) translateX(4px) translateY(-2px);
+  }
+}
+
+.anim-phone-wobble {
+  animation: phoneNaturalWobble 0.9s var(--ease-in-out) infinite;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+/* --- 9. SVG Progress Ring Fluid Interpolation --- */
+.progress-ring-circle {
+  transition: stroke-dashoffset 220ms var(--ease-smooth-out), stroke 220ms var(--ease-smooth-out);
+}
+
+/* --- 10. Success Reveal Flourish --- */
+@keyframes successPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.anim-success-flourish {
+  animation: successPopIn var(--duration-medium) var(--ease-smooth-out) both;
+}
+
+/* Sun Ray Gentle Rotation on Success Screen */
+@keyframes sunRaysSlowDrift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.anim-sun-rays {
+  animation: sunRaysSlowDrift 40s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* --- 11. Modal Bottom Sheet Motion --- */
+@keyframes sheetSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheetSlideDown {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* --- 12. Strict Accessibility: Reduced Motion Fallbacks --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .app-screen.active {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .anim-scan-line,
+  .anim-ringing-glow,
+  .anim-bell-pulse,
+  .anim-phone-wobble,
+  .anim-sun-rays {
+    animation: none !important;
+  }
+}

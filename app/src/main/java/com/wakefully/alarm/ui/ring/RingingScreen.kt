@@ -1,7 +1,6 @@
 package com.wakefully.alarm.ui.ring
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -42,36 +41,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wakefully.alarm.domain.Alarm
 import com.wakefully.alarm.domain.MissionType
-import com.wakefully.alarm.theme.BorderHairline
-import com.wakefully.alarm.theme.CarbonInk
-import com.wakefully.alarm.theme.ChalkWhite
 import com.wakefully.alarm.theme.ErrorRed
-import com.wakefully.alarm.theme.MutedText
-import com.wakefully.alarm.theme.PaperWhite
-import com.wakefully.alarm.theme.RecessiveGray
 import com.wakefully.alarm.theme.Terracotta
 import com.wakefully.alarm.theme.TerracottaBright
 import com.wakefully.alarm.theme.WakefullySpacing
-import com.wakefully.alarm.theme.WakefullyTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 @Composable
 fun RingingScreen(
@@ -81,14 +68,12 @@ fun RingingScreen(
     modifier: Modifier = Modifier
 ) {
     // CRITICAL: Block the Android system back button while alarm is ringing!
-    BackHandler(enabled = true) {
-        // Back button is intentionally blocked. Alarm cannot be bypassed by pressing back!
-    }
+    BackHandler(enabled = true) {}
 
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    // Subtle audio pulse animation (250ms)
+    // Subtle audio pulse animation
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -103,7 +88,6 @@ fun RingingScreen(
     // Emergency Hold State Machine (5-second continuous press requirement)
     var isHolding by remember { mutableStateOf(false) }
     var holdProgress by remember { mutableFloatStateOf(0f) }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(isHolding) {
         if (isHolding) {
@@ -129,7 +113,7 @@ fun RingingScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(ChalkWhite)
+            .background(MaterialTheme.colorScheme.background)
             .padding(
                 top = topInset + WakefullySpacing.Space16,
                 bottom = bottomInset + WakefullySpacing.Space24,
@@ -147,7 +131,7 @@ fun RingingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(WakefullySpacing.RadiusSmall))
-                    .background(RecessiveGray)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(horizontal = WakefullySpacing.Space12, vertical = WakefullySpacing.Space8),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -163,15 +147,15 @@ fun RingingScreen(
                             .background(Terracotta)
                     )
                     Text(
-                        text = "ALARM ACTIVE // WAKEFULLY",
+                        text = "ALARM RINGING // VERVE",
                         style = MaterialTheme.typography.labelSmall,
                         color = Terracotta
                     )
                 }
                 Text(
-                    text = "DECIBEL: 84 dB",
+                    text = "ACOUSTIC: ACTIVE",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MutedText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -186,15 +170,15 @@ fun RingingScreen(
                         .size(140.dp)
                         .scale(pulseScale)
                         .clip(CircleShape)
-                        .background(RecessiveGray)
-                        .border(1.dp, BorderHairline, CircleShape),
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
                         modifier = Modifier
                             .size(100.dp)
                             .clip(CircleShape)
-                            .background(PaperWhite)
+                            .background(MaterialTheme.colorScheme.surface)
                             .border(2.dp, Terracotta, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
@@ -215,11 +199,10 @@ fun RingingScreen(
                 Text(
                     text = "$hourStr:$minStr",
                     style = MaterialTheme.typography.displayLarge.copy(
-                        fontFamily = FontFamily.Default,
                         fontWeight = FontWeight.Light,
                         fontSize = 64.sp
                     ),
-                    color = CarbonInk
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 if (alarm.label.isNotBlank()) {
@@ -227,7 +210,7 @@ fun RingingScreen(
                     Text(
                         text = alarm.label,
                         style = MaterialTheme.typography.headlineSmall,
-                        color = CarbonInk
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
 
@@ -241,7 +224,7 @@ fun RingingScreen(
                         MissionType.NONE -> "Tap to dismiss"
                     },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MutedText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -258,8 +241,8 @@ fun RingingScreen(
                         .height(WakefullySpacing.Space56),
                     shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = CarbonInk,
-                        contentColor = PaperWhite
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Text(
@@ -280,7 +263,7 @@ fun RingingScreen(
                         .fillMaxWidth()
                         .height(WakefullySpacing.MinTouchTarget)
                         .clip(RoundedCornerShape(WakefullySpacing.RadiusButton))
-                        .background(RecessiveGray)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onPress = {
@@ -309,7 +292,7 @@ fun RingingScreen(
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = null,
-                            tint = CarbonInk,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(WakefullySpacing.Space8))
@@ -320,45 +303,19 @@ fun RingingScreen(
                                 "HOLD 5s FOR EMERGENCY SHUTOFF"
                             },
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = CarbonInk
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
 
                 Text(
-                    text = "SNOOZE DISABLED // VERIFICATION PROTOCOL ACTIVE",
+                    text = "SNOOZE DISABLED // MISSION VERIFICATION ACTIVE",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MutedText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         }
-    }
-}
-
-// ==================== COMPOSE PREVIEWS ====================
-
-@Preview(name = "Small Phone (360x640)", widthDp = 360, heightDp = 640, showBackground = true)
-@Composable
-fun RingingScreenSmallPreview() {
-    WakefullyTheme {
-        RingingScreen(
-            alarm = Alarm(hourOfDay = 6, minute = 30, missionType = MissionType.BARCODE, label = "Morning Shower"),
-            onStartMission = {},
-            onEmergencyDismiss = {}
-        )
-    }
-}
-
-@Preview(name = "Standard Phone (411x891)", widthDp = 411, heightDp = 891, showBackground = true)
-@Composable
-fun RingingScreenStandardPreview() {
-    WakefullyTheme {
-        RingingScreen(
-            alarm = Alarm(hourOfDay = 7, minute = 15, missionType = MissionType.MATH, label = "Wake Up Call"),
-            onStartMission = {},
-            onEmergencyDismiss = {}
-        )
     }
 }

@@ -73,7 +73,7 @@ class BarcodeVerificationEngine(
 
         // We have 2+ consecutive frames for this candidate
         val isValueMatch = trimmedValue == targetBarcode.value.trim()
-        val isFormatMatch = format == targetBarcode.format
+        val isFormatMatch = targetBarcode.format == 0 || format == 0 || format == targetBarcode.format
 
         return if (isValueMatch && isFormatMatch) {
             // Reset candidates to prevent re-triggering

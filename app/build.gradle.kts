@@ -17,10 +17,29 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  signingConfigs {
+    create("release") {
+      storeFile = file("verve-release.jks")
+      storePassword = "vervepassword"
+      keyAlias = "verve"
+      keyPassword = "vervepassword"
+      enableV1Signing = true
+      enableV2Signing = true
+    }
+    getByName("debug") {
+      enableV1Signing = true
+      enableV2Signing = true
+    }
+  }
+
   buildTypes {
     release {
       isMinifyEnabled = false
+      signingConfig = signingConfigs.getByName("release")
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+    debug {
+      signingConfig = signingConfigs.getByName("debug")
     }
   }
   compileOptions {

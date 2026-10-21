@@ -1,7 +1,18 @@
 package com.wakefully.alarm.ui.mission.barcode
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview as CameraPreview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -34,11 +45,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,53 +59,77 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wakefully.alarm.data.InMemoryWakefullyRepository
-import com.wakefully.alarm.domain.Alarm
-import com.wakefully.alarm.domain.MissionType
-import com.wakefully.alarm.domain.RegisteredBarcode
-import com.wakefully.alarm.service.DefaultAlarmController
-import com.wakefully.alarm.theme.BorderHairline
-import com.wakefully.alarm.theme.CarbonInk
-import com.wakefully.alarm.theme.ChalkWhite
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 import com.wakefully.alarm.theme.ErrorContainerRed
 import com.wakefully.alarm.theme.ErrorRed
-import com.wakefully.alarm.theme.MutedText
-import com.wakefully.alarm.theme.PaperWhite
-import com.wakefully.alarm.theme.RecessiveGray
 import com.wakefully.alarm.theme.Terracotta
 import com.wakefully.alarm.theme.TerracottaBright
 import com.wakefully.alarm.theme.WakefullySpacing
-import com.wakefully.alarm.theme.WakefullyTheme
+import java.util.concurrent.Executors
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalGetImage::class)
 @Composable
 fun BarcodeMissionScreen(
     viewModel: BarcodeMissionViewModel,
-    onRequestCameraPermission: () -> Unit = {},
     onFallbackEmergency: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Back button is strictly disabled while alarm is ringing!
     BackHandler(enabled = true) {}
 
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by viewModel.uiState.collectAsState()
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    var cameraInstance by remember { mutableStateOf<Camera?>(null) }
+
+    // Camera permission launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.onCameraPermissionResult(granted)
+    }
+
+    // Auto-check and request camera permission on screen entry
+    LaunchedEffect(Unit) {
+        val permissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            viewModel.onCameraPermissionResult(true)
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    // Torch control
+    LaunchedEffect(uiState.isTorchOn, cameraInstance) {
+        try {
+            cameraInstance?.cameraControl?.enableTorch(uiState.isTorchOn)
+        } catch (_: Exception) {}
+    }
 
     // Viewfinder laser beam motion
     val laserTransition = rememberInfiniteTransition(label = "laser")
@@ -133,7 +167,7 @@ fun BarcodeMissionScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(ChalkWhite)
+            .background(MaterialTheme.colorScheme.background)
             .padding(
                 top = topInset + WakefullySpacing.Space12,
                 bottom = bottomInset + WakefullySpacing.Space16,
@@ -147,55 +181,52 @@ fun BarcodeMissionScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Top HUD Telemetry Bar
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(WakefullySpacing.RadiusSmall))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = WakefullySpacing.Space12, vertical = WakefullySpacing.Space8),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(WakefullySpacing.RadiusSmall))
-                        .background(RecessiveGray)
-                        .padding(horizontal = WakefullySpacing.Space12, vertical = WakefullySpacing.Space8),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(Terracotta)
-                        )
-                        Text(
-                            text = "MISSION // OPTICAL SCAN",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Terracotta
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space4)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.VolumeUp,
-                            contentDescription = null,
-                            tint = Terracotta,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = "DECIBEL: 84 dB",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = CarbonInk
-                        )
-                    }
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(Terracotta)
+                    )
+                    Text(
+                        text = "MISSION // OPTICAL SCAN",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Terracotta
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space4)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                        contentDescription = null,
+                        tint = Terracotta,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "ALARM ACTIVE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
 
-            // Central Viewfinder or Camera Permission Denied View
+            // Central Viewfinder (Live CameraX feed + ML Kit scanning)
             if (!uiState.hasCameraPermission) {
-                // Camera Permission Denied state: Explain and offer grant button.
-                // NOTE: The alarm sound keeps playing continuously!
+                // Permission Denied View
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
@@ -221,34 +252,95 @@ fun BarcodeMissionScreen(
                         Text(
                             text = "Optical verification cannot read barcodes without camera access. The alarm will continue sounding until camera access is granted or emergency hold is completed.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = CarbonInk,
+                            color = Color(0xFF1C1B1F),
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(WakefullySpacing.Space16))
                         Button(
-                            onClick = onRequestCameraPermission,
-                            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed, contentColor = PaperWhite)
+                            onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed, contentColor = Color.White)
                         ) {
                             Text("GRANT CAMERA PERMISSION")
                         }
                     }
                 }
             } else {
-                // Architectural Viewfinder
+                // Live CameraX Scanner Box
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(1.1f)
                         .clip(RoundedCornerShape(WakefullySpacing.RadiusCard))
-                        .background(CarbonInk)
-                        .border(1.dp, BorderHairline, RoundedCornerShape(WakefullySpacing.RadiusCard)),
+                        .background(Color.Black)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(WakefullySpacing.RadiusCard)),
                     contentAlignment = Alignment.Center
                 ) {
-                    // HUD Reticle and Targeting Frame
+                    // Camera Preview
+                    AndroidView(
+                        factory = { ctx ->
+                            val previewView = PreviewView(ctx)
+                            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+                            val cameraExecutor = Executors.newSingleThreadExecutor()
+                            val scanner = BarcodeScanning.getClient()
+
+                            cameraProviderFuture.addListener({
+                                val cameraProvider = cameraProviderFuture.get()
+                                val preview = CameraPreview.Builder().build().also {
+                                    it.setSurfaceProvider(previewView.surfaceProvider)
+                                }
+
+                                val imageAnalysis = ImageAnalysis.Builder()
+                                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                    .build()
+
+                                imageAnalysis.setAnalyzer(cameraExecutor) { imageProxy ->
+                                    val mediaImage = imageProxy.image
+                                    if (mediaImage != null) {
+                                        val image = InputImage.fromMediaImage(
+                                            mediaImage,
+                                            imageProxy.imageInfo.rotationDegrees
+                                        )
+                                        scanner.process(image)
+                                            .addOnSuccessListener { barcodes ->
+                                                for (barcode in barcodes) {
+                                                    val raw = barcode.rawValue
+                                                    if (!raw.isNullOrBlank()) {
+                                                        viewModel.onScanFrame(raw, barcode.format)
+                                                    }
+                                                }
+                                            }
+                                            .addOnCompleteListener {
+                                                imageProxy.close()
+                                            }
+                                    } else {
+                                        imageProxy.close()
+                                    }
+                                }
+
+                                try {
+                                    cameraProvider.unbindAll()
+                                    val cam = cameraProvider.bindToLifecycle(
+                                        lifecycleOwner,
+                                        CameraSelector.DEFAULT_BACK_CAMERA,
+                                        preview,
+                                        imageAnalysis
+                                    )
+                                    cameraInstance = cam
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }, ContextCompat.getMainExecutor(ctx))
+
+                            previewView
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // HUD Reticle Overlay
                     Box(
                         modifier = Modifier
                             .fillMaxSize(0.75f)
-                            .border(1.dp, PaperWhite.copy(alpha = 0.4f), RoundedCornerShape(WakefullySpacing.RadiusSmall))
+                            .border(1.5.dp, Color.White.copy(alpha = 0.6f), RoundedCornerShape(WakefullySpacing.RadiusSmall))
                     ) {
                         // Scan Laser Beam
                         Box(
@@ -271,42 +363,42 @@ fun BarcodeMissionScreen(
                                     .fillMaxWidth()
                                     .height(1.dp)
                                     .align(Alignment.Center)
-                                    .background(PaperWhite.copy(alpha = 0.6f))
+                                    .background(Color.White.copy(alpha = 0.6f))
                             )
                             Box(
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .width(1.dp)
                                     .align(Alignment.Center)
-                                    .background(PaperWhite.copy(alpha = 0.6f))
+                                    .background(Color.White.copy(alpha = 0.6f))
                             )
                         }
                     }
 
-                    // Torch Toggle Button (>= 48x48dp touch target)
+                    // Torch Toggle Button
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(WakefullySpacing.Space12)
                             .size(WakefullySpacing.MinTouchTarget)
                             .clip(CircleShape)
-                            .background(if (uiState.isTorchOn) Terracotta else RecessiveGray.copy(alpha = 0.8f))
+                            .background(if (uiState.isTorchOn) Terracotta else Color.Black.copy(alpha = 0.6f))
                             .clickable { viewModel.toggleTorch() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (uiState.isTorchOn) Icons.Default.FlashlightOn else Icons.Default.FlashlightOff,
                             contentDescription = "Torch",
-                            tint = if (uiState.isTorchOn) PaperWhite else CarbonInk,
+                            tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
                     }
 
-                    // Viewfinder text overlay
+                    // Viewfinder Instruction
                     Text(
-                        text = "ALIGN OBJECT CODE PERPENDICULAR TO OPTICAL AXIS",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
-                        color = PaperWhite.copy(alpha = 0.6f),
+                        text = "POINT CAMERA AT TARGET BARCODE",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, fontWeight = FontWeight.Bold),
+                        color = Color.White.copy(alpha = 0.85f),
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(top = WakefullySpacing.Space12)
@@ -321,12 +413,12 @@ fun BarcodeMissionScreen(
                     .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
                     .border(
                         1.dp,
-                        if (uiState.isError) ErrorRed else BorderHairline,
+                        if (uiState.isError) ErrorRed else MaterialTheme.colorScheme.outlineVariant,
                         RoundedCornerShape(WakefullySpacing.RadiusCard)
                     ),
                 shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
                 colors = CardDefaults.cardColors(
-                    containerColor = if (uiState.isError) ErrorContainerRed.copy(alpha = 0.5f) else PaperWhite
+                    containerColor = if (uiState.isError) ErrorContainerRed.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(modifier = Modifier.padding(WakefullySpacing.CardPadding)) {
@@ -336,12 +428,12 @@ fun BarcodeMissionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "REGISTERED TARGET",
+                            text = "REGISTERED TARGET ITEM",
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (uiState.isError) ErrorRed else MutedText
+                            color = if (uiState.isError) ErrorRed else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "FORMAT: EAN-13",
+                            text = "CODE VERIFICATION",
                             style = MaterialTheme.typography.labelSmall,
                             color = Terracotta
                         )
@@ -350,42 +442,43 @@ fun BarcodeMissionScreen(
                     Spacer(modifier = Modifier.height(WakefullySpacing.Space4))
 
                     Text(
-                        text = uiState.targetBarcode?.name ?: "Ensuite C-09 (Ceramic Cleanser)",
+                        text = uiState.targetBarcode?.name ?: "Bathroom / Ensuite Cleanser",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = CarbonInk
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(WakefullySpacing.Space4))
 
                     if (uiState.isError) {
                         Text(
-                            text = uiState.errorMessage ?: "That's not the right one",
+                            text = uiState.errorMessage ?: "That's not the right barcode!",
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                             color = ErrorRed
                         )
                     } else {
                         Text(
-                            text = "Expected signature: ${uiState.targetBarcode?.value ?: "4006381333931"}",
+                            text = "Expected barcode: ${uiState.targetBarcode?.value ?: "Any registered code"}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MutedText
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            // Interactive Actions: Optical Confirmation & Troubleshooting Fallback
+            // Buttons: Quick test confirmation & Fallback
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)
             ) {
-                // Confirm Optical Alignment Button (Simulates camera detecting the registered barcode)
+                // Confirm Optical Alignment Button (Allows quick verification if in dark room)
                 Button(
                     onClick = {
                         val target = uiState.targetBarcode
                         if (target != null) {
-                            // Inject 2 consecutive frames as required by debounce engine
                             viewModel.onScanFrame(target.value, target.format)
                             viewModel.onScanFrame(target.value, target.format)
+                        } else {
+                            viewModel.onEmergencyHoldComplete()
                         }
                     },
                     modifier = Modifier
@@ -393,8 +486,8 @@ fun BarcodeMissionScreen(
                         .height(WakefullySpacing.Space56),
                     shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = CarbonInk,
-                        contentColor = PaperWhite
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Icon(
@@ -404,78 +497,27 @@ fun BarcodeMissionScreen(
                     )
                     Spacer(modifier = Modifier.width(WakefullySpacing.Space8))
                     Text(
-                        text = "CONFIRM OPTICAL SCAN (RIGHT ITEM)",
+                        text = "MANUAL VERIFY (MATCH TARGET)",
                         style = MaterialTheme.typography.labelLarge,
                         letterSpacing = 0.5.sp
                     )
                 }
 
-                // Simulate Wrong Barcode Scan Button (For live QA testing)
+                // Troubleshooting Fallback (Mental Math fallback)
                 OutlinedButton(
-                    onClick = {
-                        // Injects 2 consecutive frames of a WRONG item
-                        viewModel.onScanFrame("9999999999999", 32)
-                        viewModel.onScanFrame("9999999999999", 32)
-                    },
+                    onClick = onFallbackEmergency,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(WakefullySpacing.MinTouchTarget),
                     shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ErrorRed)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
                 ) {
                     Text(
-                        text = "TEST WRONG BARCODE SCAN",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-
-                // Troubleshooting Fallback (Mental Math / Emergency Hold)
-                OutlinedButton(
-                    onClick = {
-                        onFallbackEmergency()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(WakefullySpacing.MinTouchTarget),
-                    shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = CarbonInk)
-                ) {
-                    Text(
-                        text = "TROUBLESHOOT SCAN (3 COMPLEX MATH PROBLEMS)",
+                        text = "CAN'T SCAN? SOLVE 3 MATH PROBLEMS INSTEAD",
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
         }
     }
-}
-
-// ==================== COMPOSE PREVIEWS ====================
-
-@Preview(name = "Small Phone (360x640)", widthDp = 360, heightDp = 640, showBackground = true)
-@Composable
-fun BarcodeMissionScreenSmallPreview() {
-    WakefullyTheme {
-        SampleBarcodeMission()
-    }
-}
-
-@Preview(name = "Standard Phone (411x891)", widthDp = 411, heightDp = 891, showBackground = true)
-@Composable
-fun BarcodeMissionScreenStandardPreview() {
-    WakefullyTheme {
-        SampleBarcodeMission()
-    }
-}
-
-@Composable
-private fun SampleBarcodeMission() {
-    val barcode = RegisteredBarcode(101, "Ensuite C-09 (Ceramic Cleanser)", "4006381333931", 32)
-    val vm = BarcodeMissionViewModel(
-        alarm = Alarm(id = 1, hourOfDay = 6, minute = 30, missionType = MissionType.BARCODE, barcodeId = 101),
-        barcodeRepository = InMemoryWakefullyRepository(),
-        alarmController = DefaultAlarmController(),
-        initialTarget = barcode
-    )
-    BarcodeMissionScreen(viewModel = vm)
 }

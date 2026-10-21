@@ -27,4 +27,6 @@ data class Alarm(
     val barcodeId: Long? = null,
     val enabled: Boolean = true,
     val label: String = "",
+    val toneName: String = "Radiant Dawn",
+    val toneUri: String? = null
 )

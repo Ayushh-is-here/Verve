@@ -24,8 +24,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,26 +41,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wakefully.alarm.domain.MathProblem
-import com.wakefully.alarm.theme.BorderHairline
-import com.wakefully.alarm.theme.CarbonInk
-import com.wakefully.alarm.theme.ChalkWhite
 import com.wakefully.alarm.theme.ErrorContainerRed
 import com.wakefully.alarm.theme.ErrorRed
-import com.wakefully.alarm.theme.MutedText
-import com.wakefully.alarm.theme.PaperWhite
-import com.wakefully.alarm.theme.RecessiveGray
 import com.wakefully.alarm.theme.Terracotta
-import com.wakefully.alarm.theme.TerracottaBright
 import com.wakefully.alarm.theme.WakefullySpacing
-import com.wakefully.alarm.theme.WakefullyTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -69,14 +58,14 @@ fun MathMissionScreen(
     onDismissAlarm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Block back button: alarm cannot be bypassed by navigating back
+    // Back button strictly blocked during ringing mission!
     BackHandler(enabled = true) {}
 
     val uiState by viewModel.uiState.collectAsState()
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    // Shake animation for incorrect answer feedback
+    // Shake animation on incorrect math solution
     val shakeOffset = remember { Animatable(0f) }
     LaunchedEffect(uiState.isError) {
         if (uiState.isError) {
@@ -100,7 +89,7 @@ fun MathMissionScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(ChalkWhite)
+            .background(MaterialTheme.colorScheme.background)
             .padding(
                 top = topInset + WakefullySpacing.Space12,
                 bottom = bottomInset + WakefullySpacing.Space16,
@@ -119,7 +108,7 @@ fun MathMissionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(WakefullySpacing.RadiusSmall))
-                        .background(RecessiveGray)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = WakefullySpacing.Space12, vertical = WakefullySpacing.Space8),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -145,7 +134,7 @@ fun MathMissionScreen(
                         horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space4)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.VolumeUp,
+                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = null,
                             tint = Terracotta,
                             modifier = Modifier.size(14.dp)
@@ -153,7 +142,7 @@ fun MathMissionScreen(
                         Text(
                             text = "AUDIO ACTIVE",
                             style = MaterialTheme.typography.labelSmall,
-                            color = CarbonInk
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -169,7 +158,7 @@ fun MathMissionScreen(
                     Text(
                         text = "SOLVE TO DISMISS // STEP ${uiState.progressText}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MutedText
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)) {
                         for (i in 0 until uiState.totalProblems) {
@@ -182,8 +171,8 @@ fun MathMissionScreen(
                                     .background(
                                         when {
                                             isCompleted -> Terracotta
-                                            isCurrent -> CarbonInk
-                                            else -> RecessiveGray
+                                            isCurrent -> MaterialTheme.colorScheme.primary
+                                            else -> MaterialTheme.colorScheme.surfaceVariant
                                         }
                                     )
                             )
@@ -200,12 +189,12 @@ fun MathMissionScreen(
                     .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
                     .border(
                         1.dp,
-                        if (uiState.isError) ErrorRed else BorderHairline,
+                        if (uiState.isError) ErrorRed else MaterialTheme.colorScheme.outlineVariant,
                         RoundedCornerShape(WakefullySpacing.RadiusCard)
                     ),
                 shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
                 colors = CardDefaults.cardColors(
-                    containerColor = if (uiState.isError) ErrorContainerRed.copy(alpha = 0.5f) else PaperWhite
+                    containerColor = if (uiState.isError) ErrorContainerRed.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(
@@ -217,11 +206,10 @@ fun MathMissionScreen(
                     Text(
                         text = problem?.expression ?: "Generating...",
                         style = MaterialTheme.typography.headlineLarge.copy(
-                            fontFamily = FontFamily.Default,
                             fontWeight = FontWeight.Normal,
                             fontSize = 36.sp
                         ),
-                        color = CarbonInk,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
 
@@ -233,10 +221,10 @@ fun MathMissionScreen(
                             .fillMaxWidth(0.6f)
                             .height(WakefullySpacing.Space56)
                             .clip(RoundedCornerShape(WakefullySpacing.RadiusButton))
-                            .background(RecessiveGray)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .border(
                                 1.dp,
-                                if (uiState.isError) ErrorRed else CarbonInk,
+                                if (uiState.isError) ErrorRed else Terracotta,
                                 RoundedCornerShape(WakefullySpacing.RadiusButton)
                             ),
                         contentAlignment = Alignment.Center
@@ -247,7 +235,8 @@ fun MathMissionScreen(
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 2.sp
                             ),
-                            color = if (uiState.currentInput.isEmpty()) MutedText else if (uiState.isError) ErrorRed else CarbonInk
+                            color = if (uiState.currentInput.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
+                            else if (uiState.isError) ErrorRed else MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -262,7 +251,7 @@ fun MathMissionScreen(
                 }
             }
 
-            // Numeric Dialpad with >= 48x48dp accessible tap targets
+            // Numeric Dialpad
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)
@@ -283,15 +272,15 @@ fun MathMissionScreen(
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(52.dp) // Accessible touch height >= 48dp
+                                    .height(52.dp)
                                     .clip(RoundedCornerShape(WakefullySpacing.RadiusButton))
                                     .background(
                                         when (key) {
-                                            "CLEAR", "BACK" -> RecessiveGray
-                                            else -> PaperWhite
+                                            "CLEAR", "BACK" -> MaterialTheme.colorScheme.surfaceVariant
+                                            else -> MaterialTheme.colorScheme.surface
                                         }
                                     )
-                                    .border(1.dp, BorderHairline, RoundedCornerShape(WakefullySpacing.RadiusButton))
+                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(WakefullySpacing.RadiusButton))
                                     .clickable {
                                         when (key) {
                                             "CLEAR" -> viewModel.onClear()
@@ -303,9 +292,9 @@ fun MathMissionScreen(
                             ) {
                                 if (key == "BACK") {
                                     Icon(
-                                        imageVector = Icons.Default.Backspace,
+                                        imageVector = Icons.AutoMirrored.Filled.Backspace,
                                         contentDescription = "Backspace",
-                                        tint = CarbonInk,
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 } else {
@@ -316,7 +305,7 @@ fun MathMissionScreen(
                                         } else {
                                             MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                                         },
-                                        color = CarbonInk
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }
@@ -334,8 +323,8 @@ fun MathMissionScreen(
                         .height(WakefullySpacing.Space56),
                     shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = CarbonInk,
-                        contentColor = PaperWhite
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     enabled = uiState.currentInput.isNotEmpty()
                 ) {
@@ -347,29 +336,5 @@ fun MathMissionScreen(
                 }
             }
         }
-    }
-}
-
-// ==================== COMPOSE PREVIEWS ====================
-
-@Preview(name = "Small Phone (360x640)", widthDp = 360, heightDp = 640, showBackground = true)
-@Composable
-fun MathMissionScreenSmallPreview() {
-    WakefullyTheme {
-        MathMissionScreen(
-            viewModel = MathMissionViewModel(),
-            onDismissAlarm = {}
-        )
-    }
-}
-
-@Preview(name = "Standard Phone (411x891)", widthDp = 411, heightDp = 891, showBackground = true)
-@Composable
-fun MathMissionScreenStandardPreview() {
-    WakefullyTheme {
-        MathMissionScreen(
-            viewModel = MathMissionViewModel(),
-            onDismissAlarm = {}
-        )
     }
 }

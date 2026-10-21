@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.dp
 object WakefullySpacing {
     val Space2: Dp = 2.dp
     val Space4: Dp = 4.dp
+    val Space6: Dp = 6.dp
     val Space8: Dp = 8.dp
+    val Space10: Dp = 10.dp
     val Space12: Dp = 12.dp
     val Space16: Dp = 16.dp
     val Space20: Dp = 20.dp
@@ -37,3 +39,6 @@ object WakefullySpacing {
     val RadiusPill: Dp = 999.dp
     val RadiusSmall: Dp = 8.dp
 }
+
+typealias VerveSpacing = WakefullySpacing
+

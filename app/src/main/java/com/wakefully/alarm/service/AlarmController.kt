@@ -80,6 +80,7 @@ class DefaultAlarmController : AlarmController {
         _isRinging.value = false
         _soundPlaying.value = false
         _activeAlarm.value = null
+        com.wakefully.alarm.audio.VerveAudioPlayer.stopAll()
         return true
     }
 }

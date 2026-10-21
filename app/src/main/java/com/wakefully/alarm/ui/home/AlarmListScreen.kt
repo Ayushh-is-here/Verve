@@ -1,10 +1,16 @@
 package com.wakefully.alarm.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -29,12 +35,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Brightness7
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.SettingsBrightness
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,7 +52,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -53,30 +62,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wakefully.alarm.R
+import com.wakefully.alarm.data.StreakStats
 import com.wakefully.alarm.domain.Alarm
 import com.wakefully.alarm.domain.MissionType
 import com.wakefully.alarm.domain.RegisteredBarcode
-import com.wakefully.alarm.theme.BorderHairline
-import com.wakefully.alarm.theme.CarbonInk
-import com.wakefully.alarm.theme.MutedText
-import com.wakefully.alarm.theme.PaperWhite
-import com.wakefully.alarm.theme.RecessiveGray
+import com.wakefully.alarm.service.formatTimeRemainingToast
+import com.wakefully.alarm.service.getNextAlarmTime
+import com.wakefully.alarm.theme.LocalOnCycleThemeMode
+import com.wakefully.alarm.theme.LocalThemeMode
 import com.wakefully.alarm.theme.Terracotta
-import com.wakefully.alarm.theme.TerracottaBright
+import com.wakefully.alarm.theme.ThemeMode
 import com.wakefully.alarm.theme.WakefullySpacing
-import com.wakefully.alarm.theme.WakefullyTheme
 
 @Composable
 fun AlarmListScreen(
     alarms: List<Alarm>,
     barcodes: List<RegisteredBarcode> = emptyList(),
+    streakStats: StreakStats = StreakStats(),
     onToggleAlarm: (id: Long, enabled: Boolean) -> Unit,
     onDeleteAlarm: (id: Long) -> Unit,
     onEditAlarm: (alarm: Alarm) -> Unit,
@@ -84,8 +93,12 @@ fun AlarmListScreen(
     onTriggerTestAlarm: (alarm: Alarm) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    val currentTheme = LocalThemeMode.current
+    val onCycleTheme = LocalOnCycleThemeMode.current
 
     Box(
         modifier = modifier
@@ -97,127 +110,275 @@ fun AlarmListScreen(
             contentPadding = PaddingValues(
                 start = WakefullySpacing.ScreenHorizontalPadding,
                 end = WakefullySpacing.ScreenHorizontalPadding,
-                top = topInset + WakefullySpacing.Space16,
-                // Generous bottom content padding so FAB never overlaps the last item!
+                top = topInset + WakefullySpacing.Space12,
                 bottom = bottomInset + WakefullySpacing.Space64 + WakefullySpacing.Space40
             ),
-            verticalArrangement = Arrangement.spacedBy(WakefullySpacing.ListGap)
+            verticalArrangement = Arrangement.spacedBy(WakefullySpacing.Space12)
         ) {
-            // Header Section
+            // Calm, Decluttered Header
             item(key = "header") {
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = WakefullySpacing.Space8)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = WakefullySpacing.Space4)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "WAKEFULLY // PROTOCOL 4.2",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Terracotta
-                        )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(WakefullySpacing.RadiusChip))
-                                .background(RecessiveGray)
-                                .padding(horizontal = WakefullySpacing.Space8, vertical = WakefullySpacing.Space4)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space8)
                         ) {
-                            Text(
-                                text = "${alarms.count { it.enabled }} ACTIVE",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            Image(
+                                painter = painterResource(id = R.drawable.verve_logo),
+                                contentDescription = "Verve Logo",
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                             )
+                            Text(
+                                text = "VERVE",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Active count chip
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(WakefullySpacing.RadiusChip))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = WakefullySpacing.Space8, vertical = WakefullySpacing.Space4)
+                            ) {
+                                Text(
+                                    text = "${alarms.count { it.enabled }} ACTIVE",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            // Theme Mode Toggle Button
+                            IconButton(
+                                onClick = onCycleTheme,
+                                modifier = Modifier.size(WakefullySpacing.MinTouchTarget)
+                            ) {
+                                val (icon, label) = when (currentTheme) {
+                                    ThemeMode.LIGHT -> Icons.Default.Brightness7 to "Light Mode"
+                                    ThemeMode.DARK -> Icons.Default.Brightness4 to "Dark Mode"
+                                    ThemeMode.SYSTEM -> Icons.Default.SettingsBrightness to "System Auto"
+                                }
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = label,
+                                    tint = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(WakefullySpacing.Space12))
+                    Spacer(modifier = Modifier.height(WakefullySpacing.Space8))
 
                     Text(
-                        text = "Scheduled Alarms",
+                        text = "Alarms",
                         style = MaterialTheme.typography.headlineLarge,
                         color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(WakefullySpacing.Space4))
-
-                    Text(
-                        text = "Disciplined wakefulness. Strict verification guarantees zero accidental shutoffs.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            // Next Alarm Banner
-            val nextAlarm = alarms.firstOrNull { it.enabled }
-            if (nextAlarm != null) {
-                item(key = "next_alarm_banner") {
+            // Full-Screen System Alarm Permission Banner (Shows only if overlay / full-screen access needs enabling)
+            val hasOverlayPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(context)
+            } else true
+
+            val hasFullScreenIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+                nm?.canUseFullScreenIntent() ?: true
+            } else true
+
+            if (!hasOverlayPermission || !hasFullScreenIntent) {
+                item(key = "permission_banner") {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                try {
+                                    val intent = if (!hasOverlayPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        Intent(
+                                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                            Uri.parse("package:${context.packageName}")
+                                        )
+                                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                        Intent(
+                                            Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                                            Uri.parse("package:${context.packageName}")
+                                        )
+                                    } else {
+                                        Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.parse("package:${context.packageName}")
+                                        )
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {
+                                    try {
+                                        val fallback = Intent(
+                                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                            Uri.parse("package:${context.packageName}")
+                                        )
+                                        context.startActivity(fallback)
+                                    } catch (_: Exception) {}
+                                }
+                            },
                         shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
-                        colors = CardDefaults.cardColors(containerColor = CarbonInk)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        border = CardDefaults.outlinedCardBorder()
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(WakefullySpacing.CardPadding),
+                                .padding(WakefullySpacing.Space16),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "NEXT SCHEDULED WAKEFULNESS",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = TerracottaBright
-                                )
-                                Spacer(modifier = Modifier.height(WakefullySpacing.Space4))
-                                val hourStr = nextAlarm.hourOfDay.toString().padStart(2, '0')
-                                val minStr = nextAlarm.minute.toString().padStart(2, '0')
-                                Text(
-                                    text = "$hourStr:$minStr",
-                                    style = MaterialTheme.typography.displayMedium,
-                                    color = PaperWhite
-                                )
-                                if (nextAlarm.label.isNotBlank()) {
-                                    Text(
-                                        text = nextAlarm.label,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFFC7C6CB)
-                                    )
-                                }
-                            }
-
-                            // Quick trigger button for manual testing / demo
                             Box(
                                 modifier = Modifier
-                                    .size(WakefullySpacing.MinTouchTarget)
+                                    .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(Terracotta)
-                                    .clickable { onTriggerTestAlarm(nextAlarm) },
+                                    .background(Terracotta.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Test Trigger Alarm",
-                                    tint = PaperWhite
+                                    imageVector = Icons.Default.Alarm,
+                                    contentDescription = null,
+                                    tint = Terracotta,
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "FULL-SCREEN ALARM SETUP",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = Terracotta
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Enable 'Display over other apps' so alarms take over the full screen like an incoming call when your phone is locked or closed.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Enable Full-Screen Alarm Access",
+                                tint = Terracotta,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
                     }
                 }
             }
 
-            // Alarms List
-            items(items = alarms, key = { it.id }) { alarm ->
-                val linkedBarcode = barcodes.firstOrNull { it.id == alarm.barcodeId }
-                AlarmCard(
-                    alarm = alarm,
-                    barcodeName = linkedBarcode?.name,
-                    onToggle = { enabled -> onToggleAlarm(alarm.id, enabled) },
-                    onDelete = { onDeleteAlarm(alarm.id) },
-                    onEdit = { onEditAlarm(alarm) },
-                    onTestTrigger = { onTriggerTestAlarm(alarm) }
-                )
+            // Decluttered, Minimalist Discipline Horizon Strip
+            item(key = "streak_strip") {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = CardDefaults.outlinedCardBorder()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = WakefullySpacing.Space16, vertical = WakefullySpacing.Space12),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Current Streak
+                        Column {
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = "${streakStats.currentStreak}",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "days",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(bottom = 2.dp)
+                                )
+                            }
+                            Text(
+                                text = "STREAK",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                color = Terracotta
+                            )
+                        }
+
+                        // Best Record
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "${streakStats.longestStreak}d",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "RECORD",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        // Total Awakenings
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "${streakStats.totalWakeups}",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "AWAKENINGS",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Alarms List or Dormant Horizon Empty State
+            if (alarms.isEmpty()) {
+                item(key = "empty_state_dormant_horizon") {
+                    DormantHorizonEmptyState(
+                        onCreateAlarm = onCreateAlarm,
+                        onSelectPreset = { preset -> onEditAlarm(preset) }
+                    )
+                }
+            } else {
+                items(items = alarms, key = { it.id }) { alarm ->
+                    val linkedBarcode = barcodes.firstOrNull { it.id == alarm.barcodeId }
+                    AlarmCard(
+                        alarm = alarm,
+                        barcodeName = linkedBarcode?.name,
+                        onToggle = { enabled ->
+                            onToggleAlarm(alarm.id, enabled)
+                            if (enabled) {
+                                val nextCal = getNextAlarmTime(alarm.hourOfDay, alarm.minute, alarm.repeatDays)
+                                Toast.makeText(context, formatTimeRemainingToast(nextCal), Toast.LENGTH_LONG).show()
+                            }
+                        },
+                        onDelete = { onDeleteAlarm(alarm.id) },
+                        onEdit = { onEditAlarm(alarm) },
+                        onTestTrigger = { onTriggerTestAlarm(alarm) }
+                    )
+                }
             }
         }
 
@@ -232,8 +393,8 @@ fun AlarmListScreen(
                 )
                 .size(56.dp),
             shape = RoundedCornerShape(WakefullySpacing.RadiusButton),
-            containerColor = CarbonInk,
-            contentColor = PaperWhite
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -266,25 +427,51 @@ fun AlarmCard(
         modifier = modifier
             .fillMaxWidth()
             .scale(scale)
-            .border(1.dp, BorderHairline, RoundedCornerShape(WakefullySpacing.RadiusCard))
             .clickable(interactionSource = interactionSource, indication = null) { onEdit() },
         shape = RoundedCornerShape(WakefullySpacing.RadiusCard),
         colors = CardDefaults.cardColors(
-            containerColor = if (alarm.enabled) PaperWhite else RecessiveGray
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        border = CardDefaults.outlinedCardBorder()
     ) {
         Column(modifier = Modifier.padding(WakefullySpacing.CardPadding)) {
-            // Top row: Mission tag + Toggle
+            // Top Row: Badges on left (constrained with weight(1f)) + Toggle Switch on right
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Mission Tag
-                MissionBadge(missionType = alarm.missionType, barcodeName = barcodeName)
+                // Badges Row strictly constrained to weight(1f) to prevent switch overlap
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = WakefullySpacing.Space8),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space6)
+                ) {
+                    MissionBadge(
+                        missionType = alarm.missionType,
+                        barcodeName = barcodeName,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
 
-                // Toggle Switch (guaranteed >= 48x48dp touch target)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(WakefullySpacing.RadiusChip))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = WakefullySpacing.Space8, vertical = WakefullySpacing.Space4)
+                    ) {
+                        Text(
+                            text = "♪ ${alarm.toneName}",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                // Dedicated, non-overlapping Switch area
                 Box(
                     modifier = Modifier.size(WakefullySpacing.MinTouchTarget),
                     contentAlignment = Alignment.Center
@@ -293,10 +480,10 @@ fun AlarmCard(
                         checked = alarm.enabled,
                         onCheckedChange = onToggle,
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = PaperWhite,
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                             checkedTrackColor = Terracotta,
-                            uncheckedThumbColor = MutedText,
-                            uncheckedTrackColor = RecessiveGray
+                            uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
                 }
@@ -304,7 +491,7 @@ fun AlarmCard(
 
             Spacer(modifier = Modifier.height(WakefullySpacing.Space8))
 
-            // Time Row
+            // Time & Label Row
             val hourStr = alarm.hourOfDay.toString().padStart(2, '0')
             val minStr = alarm.minute.toString().padStart(2, '0')
             Row(
@@ -314,18 +501,19 @@ fun AlarmCard(
                 Text(
                     text = "$hourStr:$minStr",
                     style = MaterialTheme.typography.displayLarge.copy(
-                        fontFamily = FontFamily.Default,
                         fontWeight = FontWeight.Light,
-                        fontSize = 48.sp
+                        fontSize = 46.sp
                     ),
-                    color = if (alarm.enabled) CarbonInk else MutedText
+                    color = if (alarm.enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (alarm.label.isNotBlank()) {
                     Text(
                         text = alarm.label,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (alarm.enabled) CarbonInk else MutedText,
-                        modifier = Modifier.padding(bottom = WakefullySpacing.Space8)
+                        color = if (alarm.enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = WakefullySpacing.Space8),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -348,13 +536,17 @@ fun AlarmCard(
                             modifier = Modifier
                                 .size(24.dp)
                                 .clip(CircleShape)
-                                .background(if (isSelected && alarm.enabled) CarbonInk else RecessiveGray),
+                                .background(
+                                    if (isSelected && alarm.enabled) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = day,
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                                color = if (isSelected && alarm.enabled) PaperWhite else MutedText
+                                color = if (isSelected && alarm.enabled) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -387,7 +579,7 @@ fun AlarmCard(
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete Alarm",
-                            tint = MutedText,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -398,10 +590,14 @@ fun AlarmCard(
 }
 
 @Composable
-fun MissionBadge(missionType: MissionType, barcodeName: String?) {
+fun MissionBadge(
+    missionType: MissionType,
+    barcodeName: String?,
+    modifier: Modifier = Modifier
+) {
     val (label, icon) = when (missionType) {
         MissionType.BARCODE -> {
-            val name = barcodeName ?: "REGISTERED BARCODE"
+            val name = barcodeName ?: "BARCODE"
             "OPTICAL // $name" to Icons.Default.QrCodeScanner
         }
         MissionType.MATH -> "MATH // 3 PROBLEMS" to Icons.Default.Calculate
@@ -412,9 +608,9 @@ fun MissionBadge(missionType: MissionType, barcodeName: String?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(WakefullySpacing.Space4),
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(WakefullySpacing.RadiusSmall))
-            .background(RecessiveGray)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = WakefullySpacing.Space8, vertical = WakefullySpacing.Space4)
     ) {
         Icon(
@@ -426,68 +622,9 @@ fun MissionBadge(missionType: MissionType, barcodeName: String?) {
         Text(
             text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, fontWeight = FontWeight.SemiBold),
-            color = CarbonInk
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
-}
-
-// ==================== COMPOSE PREVIEWS ====================
-
-@Preview(name = "Small Phone (360x640)", widthDp = 360, heightDp = 640, showBackground = true)
-@Composable
-fun AlarmListScreenSmallPreview() {
-    WakefullyTheme {
-        SampleAlarmList()
-    }
-}
-
-@Preview(name = "Standard Phone (411x891)", widthDp = 411, heightDp = 891, showBackground = true)
-@Composable
-fun AlarmListScreenStandardPreview() {
-    WakefullyTheme {
-        SampleAlarmList()
-    }
-}
-
-@Preview(name = "Large Phone (480x1080)", widthDp = 480, heightDp = 1080, showBackground = true)
-@Composable
-fun AlarmListScreenLargePreview() {
-    WakefullyTheme {
-        SampleAlarmList()
-    }
-}
-
-@Composable
-private fun SampleAlarmList() {
-    val sampleAlarms = listOf(
-        Alarm(
-            id = 1,
-            hourOfDay = 6,
-            minute = 30,
-            repeatDays = setOf(1, 2, 3, 4, 5),
-            missionType = MissionType.BARCODE,
-            barcodeId = 101,
-            enabled = true,
-            label = "Morning Shower"
-        ),
-        Alarm(
-            id = 2,
-            hourOfDay = 7,
-            minute = 15,
-            repeatDays = setOf(6, 7),
-            missionType = MissionType.MATH,
-            barcodeId = null,
-            enabled = false,
-            label = "Weekend Awakening"
-        )
-    )
-    AlarmListScreen(
-        alarms = sampleAlarms,
-        barcodes = listOf(RegisteredBarcode(101, "Ensuite C-09", "4006381333931")),
-        onToggleAlarm = { _, _ -> },
-        onDeleteAlarm = {},
-        onEditAlarm = {},
-        onCreateAlarm = {},
-        onTriggerTestAlarm = {}
-    )
 }
